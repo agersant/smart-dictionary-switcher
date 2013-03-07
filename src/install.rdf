@@ -20,8 +20,8 @@
 
     <!-- Front End MetaData -->
     <em:name>Smart Dictionary Switcher</em:name>
-    <em:description>This extension detects your language when you are composing an email and makes Thunderbird use the appropriate spellcheck dictionary.</em:description>
+    <em:description>Detects language while emails are being composed and automatically selects the best dictionary available.</em:description>
     <em:creator>Antoine Gersant</em:creator>
-    
+	
   </Description>
 </RDF>
