@@ -2,6 +2,7 @@ function debug (message) {
   var consoleService = Components.classes["@mozilla.org/consoleservice;1"].getService(Components.interfaces.nsIConsoleService);
   consoleService.logStringMessage("agersant: " + message);
 }
+
 var MIN_RATIO_OF_CORRECT_WORDS = .5; 	//Minimum ratio of correctly spelled word required for a dictionary to be considered a good candidate (useful if we are writing in a language without a matching dictionary installed)
 function AnalysisResult (words, score) {
 	this.wordSet = words;
@@ -15,6 +16,7 @@ function AnalysisResult (words, score) {
 		return false;
 	}
 }
+
 var SmartDictionarySwitcher = {
 	prefs: null
 ,	setIntervalID: null
@@ -31,6 +33,7 @@ var SmartDictionarySwitcher = {
 ,	getMinWords: function () {
 		return this.prefs.getIntPref("minWords");
 	}
+
 ,	startup: function () {
 		//Get preferences
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"]
@@ -45,9 +48,11 @@ var SmartDictionarySwitcher = {
 		//Begin work!
 		this.initWorker();
 	}
+
 ,	shutdown: function() {
 		this.prefs.removeObserver("", this);
 	}
+
 ,	observe: function(subject, topic, data) {
 		if (topic != "nsPref:changed") return;
 		switch (data) {
@@ -56,11 +61,13 @@ var SmartDictionarySwitcher = {
 				break;
 		}
 	}
+
 ,	initWorker: function () {
 		debug("init w/ " + this.prefs.getIntPref("checkPeriod"));
 		window.clearInterval(this.setIntervalID);
 		this.setIntervalID = window.setInterval(this.work, this.prefs.getIntPref("checkPeriod") * 1000);
 	}
+
 ,	populateDictionaries: function () {
 		//Get spellchecking engine
 		var spellclass = "@mozilla.org/spellchecker/myspell;1";
@@ -73,26 +80,37 @@ var SmartDictionarySwitcher = {
 		this.spellCheckEngine.getDictionaryList(this.dictionaries, {});
 		this.dictionaries = this.dictionaries.value;
 	}
+
 ,	work: function () {
+
+		//Only work in active window
+		if (!SmartDictionarySwitcher.editor.document.hasFocus()) return;
+
 		//Read preferences
 		var minWords = SmartDictionarySwitcher.getMinWords();
 		var maxWords = SmartDictionarySwitcher.getMaxWords();
+
 		//No dictionaries -> no work!
 		if (SmartDictionarySwitcher.dictionaries.length == 0) return;
+
 		//Retrieve email text
 		var text = SmartDictionarySwitcher.editor.outputToString('text/plain', 4);
 		text = text.replace(/[\u0021-\u0040\u005B-\u0060]/g, " ");	//Remove basic punctuation
 		var words = text.split(/\s+/, maxWords);					//Split into words
+
 		//Give up if we do not have enough words
 		if (words.length < minWords) return;
+
 		//Move on to next dictionary
 		SmartDictionarySwitcher.currentDictionaryIndex = (SmartDictionarySwitcher.currentDictionaryIndex + 1)%SmartDictionarySwitcher.dictionaries.length;
 		var currentDictionary = SmartDictionarySwitcher.dictionaries[SmartDictionarySwitcher.currentDictionaryIndex];
+
 		//Skip analysis if word pool hasnt changed
 		var doAnalysis = true;
 		var archive = SmartDictionarySwitcher.archives[SmartDictionarySwitcher.currentDictionaryIndex];
 		if (archive != undefined)
 			doAnalysis = archive.needsComparisonAgainst(words);
+
 		//Evaluate dictionary if needed
 		var score;
 		if (doAnalysis) {
@@ -103,25 +121,31 @@ var SmartDictionarySwitcher = {
 					score++;
 			SmartDictionarySwitcher.archives[SmartDictionarySwitcher.currentDictionaryIndex] = new AnalysisResult(words, score);
 		} else score = archive.score;
+
 		//Check if this was our best candidate so far
 		if (score < SmartDictionarySwitcher.bestScore || SmartDictionarySwitcher.bestDictionary == currentDictionary) {
 			SmartDictionarySwitcher.bestScore = score;
 			SmartDictionarySwitcher.bestDictionary = currentDictionary;
 		}
+
 		//Check if this dictionary is good enough for being used
 		var misspellRatio = score / words.length;
 		var shitRresult = misspellRatio > (1 - MIN_RATIO_OF_CORRECT_WORDS);
 		if (shitRresult && SmartDictionarySwitcher.bestDictionary == currentDictionary) SmartDictionarySwitcher.bestDictionary = "";
+
 		//Change dictionary according to result
 		var activeDictionary = SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.GetCurrentDictionary();
 		if (activeDictionary != SmartDictionarySwitcher.bestDictionary)
 			SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.SetCurrentDictionary(SmartDictionarySwitcher.bestDictionary);
 	}
+
 }
+
 var myStateListener = {
 	NotifyComposeBodyReady: function() {
 		SmartDictionarySwitcher.startup();
 	}
 }
+
 window.addEventListener("compose-window-init", function(e){ gMsgCompose.RegisterStateListener(myStateListener); }, true);
 window.addEventListener("compose-window-close", function(e){ SmartDictionarySwitcher.shutdown(); }, true);
