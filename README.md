@@ -1,4 +1,4 @@
-smart-dictionary-switcher
-=========================
+#Smart Dictionary Switcher
+==========================
 
-Thunderbird plugin that automatically selects the best dictionary while users compose email.
+Thunderbird add-on that detects language while emails are being composed and automatically selects the best dictionary available.
