@@ -1,0 +1,9 @@
+<?xml version="1.0"?>
+ 
+<!DOCTYPE mydialog SYSTEM "chrome://smartdictionartswitcher/locale/mydialog.dtd">
+ 
+<vbox xmlns="http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul">
+  <setting type="integer" pref="extensions.smartdictionartswitcher.minWords" 	title="Minimum Words" desc="Mimnimum number of words used for detecting languages" />
+  <setting type="integer" pref="extensions.smartdictionartswitcher.maxWords" 	title="Maximum Words" desc="Maximum number of words used for detecting languages" />
+  <setting type="integer" pref="extensions.smartdictionartswitcher.checkPeriod" title="Language check period" desc="Number of seconds between language checks" />
+</vbox>
