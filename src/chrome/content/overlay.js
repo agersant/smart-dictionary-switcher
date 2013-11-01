@@ -145,9 +145,10 @@ var SmartDictionarySwitcher = {
 }
 
 var myStateListener = {
-	NotifyComposeBodyReady: function() {
-		SmartDictionarySwitcher.startup();
-	}
+	NotifyComposeBodyReady: function() { SmartDictionarySwitcher.startup(); },
+	NotifyComposeFieldsReady: function() {},
+	ComposeProcessDone: function(aResult) {},
+	SaveInFolderDone: function(folderName) {}
 }
 
 window.addEventListener("compose-window-init", function(e){ gMsgCompose.RegisterStateListener(myStateListener); }, true);
