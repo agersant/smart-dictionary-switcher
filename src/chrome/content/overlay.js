@@ -26,7 +26,7 @@ var SmartDictionarySwitcher = {
 ,	currentDictionaryIndex: 0			//Index of the dictionary currently being probed
 ,	archives: []						//Array of AnalysisResult telling us how well dictionaries performed against their latest word set.
 ,	bestDictionary: ""					//Name of the best dictionary we have found
-,	bestScore: 0						//Number of misspelled words using our best dictionary //TODO init
+,	bestScore: 0						//Number of misspelled words using our best dictionary
 ,	getMaxWords: function () {
 		return Math.max(1, this.prefs.getIntPref("maxWords"));
 	}
