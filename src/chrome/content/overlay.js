@@ -62,8 +62,7 @@ var SmartDictionarySwitcher = {
 		}
 	}
 
-,	initWorker: function () {
-		debug("init w/ " + this.prefs.getIntPref("checkPeriod"));
+,	initWorker: function () {		
 		window.clearInterval(this.setIntervalID);
 		this.setIntervalID = window.setInterval(this.work, this.prefs.getIntPref("checkPeriod") * 1000);
 	}
