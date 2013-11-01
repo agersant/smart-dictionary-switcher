@@ -26,6 +26,7 @@ var SmartDictionarySwitcher = {
 ,	currentDictionaryIndex: 0			//Index of the dictionary currently being probed
 ,	archives: []						//Array of AnalysisResult telling us how well dictionaries performed against their latest word set.
 ,	bestDictionary: ""					//Name of the best dictionary we have found
+,	lastSetDictionary: ""				//Last dictionary we applied to the compose window
 ,	bestScore: 0						//Number of misspelled words using our best dictionary
 ,	getMaxWords: function () {
 		return Math.max(1, this.prefs.getIntPref("maxWords"));
@@ -35,6 +36,8 @@ var SmartDictionarySwitcher = {
 	}
 
 ,	startup: function () {
+		//Reset
+		this.lastSetDictionary = "";
 		//Get preferences
 		this.prefs = Components.classes["@mozilla.org/preferences-service;1"]
 			.getService(Components.interfaces.nsIPrefService)
@@ -134,8 +137,11 @@ var SmartDictionarySwitcher = {
 			//Change dictionary according to result
 			if (hasGoodMatch) {
 				var activeDictionary = SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.GetCurrentDictionary();
-				if (activeDictionary != SmartDictionarySwitcher.bestDictionary)
+				var userOverride = SmartDictionarySwitcher.lastSetDictionary != "" && SmartDictionarySwitcher.lastSetDictionary != activeDictionary;
+				if (activeDictionary != SmartDictionarySwitcher.bestDictionary && !userOverride) {
 					SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.SetCurrentDictionary(SmartDictionarySwitcher.bestDictionary);
+					SmartDictionarySwitcher.lastSetDictionary = SmartDictionarySwitcher.bestDictionary;
+				}
 			}
 		
 		}
