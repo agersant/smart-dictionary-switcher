@@ -122,21 +122,25 @@ var SmartDictionarySwitcher = {
 			SmartDictionarySwitcher.archives[SmartDictionarySwitcher.currentDictionaryIndex] = new AnalysisResult(words, score);
 		} else score = archive.score;
 
-		//Check if this was our best candidate so far
+		//If this was our best candidate so far
 		if (score < SmartDictionarySwitcher.bestScore || SmartDictionarySwitcher.bestDictionary == currentDictionary) {
+			
 			SmartDictionarySwitcher.bestScore = score;
-			SmartDictionarySwitcher.bestDictionary = currentDictionary;
+			SmartDictionarySwitcher.bestDictionary = currentDictionary;		
+
+			//Check if our best dictionary is good enough for being used
+			var misspellRatio = SmartDictionarySwitcher.bestScore / words.length;
+			var hasGoodMatch = misspellRatio < (1 - MIN_RATIO_OF_CORRECT_WORDS);
+
+			//Change dictionary according to result
+			if (hasGoodMatch) {
+				var activeDictionary = SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.GetCurrentDictionary();
+				if (activeDictionary != SmartDictionarySwitcher.bestDictionary)
+					SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.SetCurrentDictionary(SmartDictionarySwitcher.bestDictionary);
+			}
+		
 		}
-
-		//Check if this dictionary is good enough for being used
-		var misspellRatio = score / words.length;
-		var shitRresult = misspellRatio > (1 - MIN_RATIO_OF_CORRECT_WORDS);
-		if (shitRresult && SmartDictionarySwitcher.bestDictionary == currentDictionary) SmartDictionarySwitcher.bestDictionary = "";
-
-		//Change dictionary according to result
-		var activeDictionary = SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.GetCurrentDictionary();
-		if (activeDictionary != SmartDictionarySwitcher.bestDictionary)
-			SmartDictionarySwitcher.editor.getInlineSpellChecker(true).spellChecker.SetCurrentDictionary(SmartDictionarySwitcher.bestDictionary);
+		
 	}
 
 }
